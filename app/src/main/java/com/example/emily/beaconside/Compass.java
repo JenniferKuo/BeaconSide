@@ -1,12 +1,14 @@
 package com.example.emily.beaconside;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -105,6 +107,8 @@ public class Compass extends AppCompatActivity implements SurfaceHolder.Callback
         // for the system's orientation sensor registered listeners
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
+        if(isOPen(getBaseContext()))
+            Toast.makeText(getBaseContext(), "有開gps", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -232,5 +236,19 @@ public class Compass extends AppCompatActivity implements SurfaceHolder.Callback
         backPressedIntent .setClass(getApplicationContext(), MainActivity.class);
         startActivity(backPressedIntent );
         finish();
+    }
+
+    public static final boolean isOPen(final Context context) {
+        LocationManager locationManager
+                = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        // 通过GPS卫星定位，定位级别可以精确到街（通过24颗卫星定位，在室外和空旷的地方定位准确、速度快）
+        boolean gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // 通过WLAN或移动网络(3G/2G)确定的位置（也称作AGPS，辅助GPS定位。主要用于在室内或遮盖物（建筑群或茂密的深林等）密集的地方定位）
+        boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (gps || network) {
+            return true;
+        }
+
+        return false;
     }
 }
